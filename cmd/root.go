@@ -53,11 +53,18 @@ func initConfig() {
 		viper.SetConfigName(confName)
 	}
 
+	//viper.RegisterAlias("aws_access_key_id", "access_key")
+	//viper.RegisterAlias("aws_secret_access_key", "access_secret")
+	err := viper.BindEnv("aws_secret_access_key", "aws_access_key_id")
+	if err != nil {
+		cobra.CheckErr(err)
+	}
+
 	viper.AutomaticEnv()
 
-	// TODO: Same as above todo. We should exit but uncommenting below line will cause error during "vajeh config init"!
-	//if err := viper.ReadInConfig(); err != nil {
-	//	fmt.Printf("Error loading config file: %s\n Make sure file exists or run \"vajeh config init\" to create config file.", err)
-	//os.Exit(1)
-	//}
+	if err := viper.ReadInConfig(); err == nil {
+		// TODO: Same as above todo. We should exit but uncommenting below line will cause error during "vajeh config init"!
+		//	fmt.Printf("Error loading config file: %s\n Make sure file exists or run \"vajeh config init\" to create config file.", err)
+		//os.Exit(1)
+	}
 }

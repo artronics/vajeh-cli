@@ -2,3 +2,6 @@
 .env
 build
 vajeh-cli
+.terraform
+terraform.*
+terraform-test

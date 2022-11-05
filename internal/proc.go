@@ -8,13 +8,16 @@ import (
 	"syscall"
 )
 
-func Exec(bin string, args []string) (string, error) {
+func Exec(bin string, args []string, envs []string) (string, error) {
 	binary, err := exec.LookPath(bin)
 	if err != nil {
 		return "", fmt.Errorf("couldn't find %s executable. Make sure %s is installed", bin, bin)
 	}
 
 	cmd := exec.Command(binary, args...)
+	if envs != nil {
+		cmd.Env = append(cmd.Env, envs...)
+	}
 
 	stdout, _ := cmd.StdoutPipe()
 	stderr := new(strings.Builder)

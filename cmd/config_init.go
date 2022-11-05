@@ -17,20 +17,19 @@ var initCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		confFile := cmd.Flags().Lookup("output").Value.String()
-		defer func(filename string) {
-			err := viper.WriteConfigAs(filename)
-			if err != nil {
-				cobra.CheckErr(err)
-			}
-		}(confFile)
 
 		user, err := osUser.Current()
 		cobra.CheckErr(err)
 
 		scanInput("username", "What is your AWS username?", user.Username)
-		scanInput("access_key", "What is your AWS_ACCESS_KEY_ID?", os.Getenv("AWS_ACCESS_KEY_ID"))
-		scanInput("access_secret", "What is your AWS_SECRET_ACCESS_KEY?", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+		scanInput("aws_access_key_id", "What is your AWS_ACCESS_KEY_ID?", os.Getenv("AWS_ACCESS_KEY_ID"))
+		scanInput("aws_secret_access_key", "What is your AWS_SECRET_ACCESS_KEY?", os.Getenv("AWS_SECRET_ACCESS_KEY"))
 		scanInput("workspace", "What is your default terraform workspace? This is your short username", user.Username)
+		scanInput("workdir", "What is the default terraform directory relative to your project path? This is where you store terraform files.", user.Username)
+
+		err = viper.WriteConfigAs(confFile)
+		cobra.CheckErr(err)
+
 	},
 }
 

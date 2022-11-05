@@ -5,18 +5,18 @@ import (
 	"strings"
 )
 
-func execTerraform(wd string, args []string) (string, error) {
+func execTerraform(wd string, args []string, envs []string) (string, error) {
 	bin := "terraform"
 	chdir := fmt.Sprintf("-chdir=%s", wd)
 
 	n := []string{chdir}
 	n = append(n, args...)
 
-	out, err := Exec(bin, n)
+	out, err := Exec(bin, n, envs)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "please run \"terraform init\"") {
-			_, err := Exec(bin, []string{chdir, "init"})
+			_, err := Exec(bin, []string{chdir, "init"}, envs)
 			if err != nil {
 				return out, err
 			}
@@ -26,37 +26,21 @@ func execTerraform(wd string, args []string) (string, error) {
 		}
 	}
 
-	return out, nil
+	return strings.TrimSpace(out), nil
 }
 
 // GetWorkspaces returns a list of all workspaces with the first item indicating the active one.
 // Given correct initialized directory this list must have at least one item i.e "default"
 func GetWorkspaces(wd string) ([]string, error) {
-	bin := "terraform"
-	chdir := fmt.Sprintf("-chdir=%s", wd)
-
-	var wss []string
-	activeWs, err := Exec(bin, []string{chdir, "workspace", "show"})
+	activeWs, err := execTerraform(wd, []string{"workspace", "show"}, nil)
 	if err != nil {
-		if strings.Contains(err.Error(), "please run \"terraform init\"") {
-			fmt.Printf("RUN INIT")
-		}
 		return nil, err
 	}
-	wss = append(wss, strings.TrimSpace(activeWs)) // Add current one
 
-	wsStr, err := Exec(bin, []string{chdir, "workspace", "list"})
-	if err != nil {
-		if strings.Contains(err.Error(), "please run \"terraform init\"") {
-			_, err := Exec(bin, []string{chdir, "init"})
-			if err != nil {
-				return nil, err
-			}
+	var wss []string
+	wss = append(wss, activeWs) // Add current one
 
-		} else {
-			return nil, err
-		}
-	}
+	wsStr, err := execTerraform(wd, []string{"workspace", "list"}, nil)
 	wsAll := strings.Split(wsStr, "\n")
 
 	for _, ws := range wsAll {
@@ -70,13 +54,10 @@ func GetWorkspaces(wd string) ([]string, error) {
 }
 
 func ChangeWorkspace(wd string, wss []string, ws string) error {
-	bin := "terraform"
-	chdir := fmt.Sprintf("-chdir=%s", wd)
-
 	// If it's already in wss then just switch (select) it otherwise create new one. "new" will switch as well
 	for _, w := range wss {
 		if ws == w {
-			_, err := Exec(bin, []string{chdir, "workspace", "select", ws})
+			_, err := execTerraform(wd, []string{"workspace", "select", ws}, nil)
 			if err != nil {
 				return err
 			}
@@ -84,7 +65,7 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 		}
 	}
 
-	_, err := Exec(bin, []string{"workspace", "new", ws})
+	_, err := execTerraform(wd, []string{"workspace", "new", ws}, nil)
 	if err != nil {
 		return err
 	}
@@ -92,10 +73,9 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 	return nil
 }
 
-func Apply(wd string) error {
-	bin := "terraform"
-	chdir := fmt.Sprintf("-chdir=%s", wd)
-	s, err := Exec(bin, []string{chdir, "apply"})
+func Apply(wd string, credentials AwsCredentials) error {
+	fmt.Printf("Acc: %s | Sec: %s", credentials.AccessKey, credentials.AccessSecret)
+	s, err := execTerraform(wd, []string{"apply"}, credentials.ToEnvs())
 	if err != nil {
 		return err
 	}
