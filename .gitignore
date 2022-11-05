@@ -2,6 +2,9 @@
 .env
 build
 vajeh-cli
-.terraform
-terraform.*
+
+# ignore all terraform stuff. These are for local testing
+**/.terraform
+**/terraform.*
 terraform-test
+*.tf

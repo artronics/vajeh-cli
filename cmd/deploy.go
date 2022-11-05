@@ -43,4 +43,14 @@ and finally runs terraform apply.`,
 
 func init() {
 	rootCmd.AddCommand(deployCmd)
+
+	deployCmd.PersistentFlags().StringP("workspace", "w", "default", "the terraform workspace")
+	err := viper.BindPFlag("workspace", deployCmd.PersistentFlags().Lookup("workspace"))
+	cobra.CheckErr(err)
+	viper.SetDefault("workspace", "default")
+
+	deployCmd.PersistentFlags().StringP("workdir", "d", ".", "working directory i.e. where terraform files are located")
+	err = viper.BindPFlag("workdir", deployCmd.PersistentFlags().Lookup("workdir"))
+	cobra.CheckErr(err)
+	viper.SetDefault("workdir", ".")
 }
