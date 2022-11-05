@@ -21,6 +21,6 @@ config-init: build
 	./build/vajeh config init $(opt)
 
 clean:
-	rm -rf build terraform.* .terraform terraform-test/.terraform* terraform-test/terraform.*
+	rm -rf build vajeh-cli terraform.* .terraform terraform-test/.terraform* terraform-test/terraform.*
 
 .PHONY: build run clean
