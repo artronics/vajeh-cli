@@ -75,17 +75,6 @@ func init() {
 	viper.SetDefault("workdir", ".")
 
 	deployCmd.PersistentFlags().Bool("dryrun", false, "whether to apply the plan. It's equivalent of terraform plan")
-	err = viper.BindPFlag("dryrun", deployCmd.PersistentFlags().Lookup("dryrun"))
-	cobra.CheckErr(err)
-	viper.SetDefault("dryrun", false)
-
 	deployCmd.PersistentFlags().Bool("destroy", false, "whether to destroy deployment. It WONT ask for confirmation; add --dryrun along this option to check the plan")
-	err = viper.BindPFlag("destroy", deployCmd.PersistentFlags().Lookup("destroy"))
-	cobra.CheckErr(err)
-	viper.SetDefault("destroy", false)
-
 	deployCmd.PersistentFlags().String("vars", "", "terraform variable in the form of: --vars \"<key1>:<value1> <key2>:<value2>\"")
-	err = viper.BindPFlag("vars", deployCmd.PersistentFlags().Lookup("vars"))
-	cobra.CheckErr(err)
-	viper.SetDefault("vars", false)
 }

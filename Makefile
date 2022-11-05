@@ -5,20 +5,17 @@ include .env/env
 build:
 	go build -o build/vajeh
 
-run: build
+vajeh: build
 	./build/vajeh $(opt)
 
-dev: build
-	./build/vajeh --config $(shell pwd)/.env/vajeh.yaml $(opt_dev)
+config-init: build
+	./build/vajeh config init $(opt)
 
 deploy: build
 	./build/vajeh --config $(shell pwd)/.env/vajeh2.yaml deploy $(opt)
 
-plan: build
-	./build/vajeh --config $(shell pwd)/.env/vajeh2.yaml deploy --dryrun $(opt)
-
-config-init: build
-	./build/vajeh config init $(opt)
+version: build
+	./build/vajeh version $(opt)
 
 docker-login:
 	docker login -u artronics -p $(DOCKER_HUB_TOKEN)
