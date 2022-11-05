@@ -1,4 +1,6 @@
 FROM golang:alpine as go_build
+LABEL maintainer="Jalal Hosseini - @artronics"
+
 ENV GO111MODULE=on
 
 WORKDIR /app
@@ -10,6 +12,6 @@ RUN CGO_ENABLED=0 go build -o app .
 
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=go_build /app ./
+COPY --from=go_build /app/app ./
 
 ENTRYPOINT ["./app"]
