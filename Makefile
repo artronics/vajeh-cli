@@ -17,4 +17,7 @@ deploy: build
 config-init: build
 	./build/vajeh config init $(opt)
 
-.PHONY: build run
+clean:
+	rm -rf build terraform.* .terraform terraform-test/.terraform* terraform-test/terraform.*
+
+.PHONY: build run clean

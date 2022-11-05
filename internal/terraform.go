@@ -74,12 +74,10 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 }
 
 func Apply(wd string, credentials AwsCredentials) error {
-	fmt.Printf("Acc: %s | Sec: %s", credentials.AccessKey, credentials.AccessSecret)
-	s, err := execTerraform(wd, []string{"apply"}, credentials.ToEnvs())
+	_, err := execTerraform(wd, []string{"apply", "-auto-approve"}, credentials.ToEnvs())
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(s)
 	return nil
 }

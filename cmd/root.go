@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,6 +31,22 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vajeh.yaml)")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	deployCmd.PersistentFlags().StringP("workspace", "w", "default", "the terraform workspace")
+	err := viper.BindPFlag("workspace", deployCmd.PersistentFlags().Lookup("workspace"))
+	cobra.CheckErr(err)
+	viper.SetDefault("workspace", "default")
+
+	deployCmd.PersistentFlags().StringP("workdir", "d", ".", "working directory i.e. where terraform files are located")
+	err = viper.BindPFlag("workdir", deployCmd.PersistentFlags().Lookup("workdir"))
+	cobra.CheckErr(err)
+	viper.SetDefault("workdir", ".")
+
+	// key and secret must be provided via environment variables only
+	err = viper.BindEnv("aws-secret-access-key", "aws-access-key-id")
+	if err != nil {
+		cobra.CheckErr(err)
+	}
 }
 
 func initConfig() {
@@ -53,13 +70,7 @@ func initConfig() {
 		viper.SetConfigName(confName)
 	}
 
-	//viper.RegisterAlias("aws_access_key_id", "access_key")
-	//viper.RegisterAlias("aws_secret_access_key", "access_secret")
-	err := viper.BindEnv("aws_secret_access_key", "aws_access_key_id")
-	if err != nil {
-		cobra.CheckErr(err)
-	}
-
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err == nil {

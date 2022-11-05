@@ -20,15 +20,15 @@ func (a *AwsCredentials) ToEnvs() []string {
 func GetAwsCred() (AwsCredentials, error) {
 	awsCred := AwsCredentials{}
 
-	accessKey := viper.Get("access_key")
+	accessKey := viper.Get("aws_access_key_id")
 	if accessKey == nil {
-		return awsCred, fmt.Errorf("AWS access_key is required. You must pass it as AWS_ACCESS_KEY_ID")
+		return awsCred, fmt.Errorf("environment variable AWS_ACCESS_KEY_ID is required")
 	}
 	awsCred.AccessKey = accessKey.(string)
 
 	accessSecret := viper.Get("aws_secret_access_key")
 	if accessSecret == nil {
-		return awsCred, fmt.Errorf("AWS access_secret is required. You must pass it as AWS_SECRET_ACCESS_KEY")
+		return awsCred, fmt.Errorf("environment AWS_SECRET_ACCESS_KEY variable is required")
 	}
 	awsCred.AccessSecret = accessSecret.(string)
 
