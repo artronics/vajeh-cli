@@ -1,6 +1,6 @@
 .env
-**/terraform*
-**/.terraform*
+terraform*
+.terraform*
+terraform-test
 build
 .idea
-terraform-test
