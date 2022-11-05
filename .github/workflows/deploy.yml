@@ -9,7 +9,6 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    container: hashicorp/terraform
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
