@@ -8,7 +8,7 @@ import (
 	"syscall"
 )
 
-func Exec(bin string, args []string, envs []string) (string, error) {
+func Exec(bin string, args []string, envs []string, isStdout bool) (string, error) {
 	binary, err := exec.LookPath(bin)
 	if err != nil {
 		return "", fmt.Errorf("couldn't find %s executable. Make sure %s is installed", bin, bin)
@@ -34,7 +34,9 @@ func Exec(bin string, args []string, envs []string) (string, error) {
 		m := scanner.Text()
 		output.WriteString(m)
 		output.WriteString("\n")
-		fmt.Println(m)
+		if isStdout {
+			fmt.Println(m)
+		}
 	}
 
 	if err := cmd.Wait(); err != nil {

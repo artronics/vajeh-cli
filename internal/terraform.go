@@ -5,18 +5,18 @@ import (
 	"strings"
 )
 
-func execTerraform(wd string, args []string, envs []string) (string, error) {
+func execTerraform(wd string, args []string, envs []string, isStdout bool) (string, error) {
 	bin := "terraform"
 	chdir := fmt.Sprintf("-chdir=%s", wd)
 
 	n := []string{chdir}
 	n = append(n, args...)
 
-	out, err := Exec(bin, n, envs)
+	out, err := Exec(bin, n, envs, isStdout)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "please run \"terraform init\"") {
-			_, err := Exec(bin, []string{chdir, "init"}, envs)
+			_, err := Exec(bin, []string{chdir, "init"}, envs, true)
 			if err != nil {
 				return out, err
 			}
@@ -32,7 +32,7 @@ func execTerraform(wd string, args []string, envs []string) (string, error) {
 // GetWorkspaces returns a list of all workspaces with the first item indicating the active one.
 // Given correct initialized directory this list must have at least one item i.e "default"
 func GetWorkspaces(wd string) ([]string, error) {
-	activeWs, err := execTerraform(wd, []string{"workspace", "show"}, nil)
+	activeWs, err := execTerraform(wd, []string{"workspace", "show"}, nil, false)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func GetWorkspaces(wd string) ([]string, error) {
 	var wss []string
 	wss = append(wss, activeWs) // Add current one
 
-	wsStr, err := execTerraform(wd, []string{"workspace", "list"}, nil)
+	wsStr, err := execTerraform(wd, []string{"workspace", "list"}, nil, false)
 	wsAll := strings.Split(wsStr, "\n")
 
 	for _, ws := range wsAll {
@@ -57,7 +57,7 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 	// If it's already in wss then just switch (select) it otherwise create new one. "new" will switch as well
 	for _, w := range wss {
 		if ws == w {
-			_, err := execTerraform(wd, []string{"workspace", "select", ws}, nil)
+			_, err := execTerraform(wd, []string{"workspace", "select", ws}, nil, false)
 			if err != nil {
 				return err
 			}
@@ -65,7 +65,7 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 		}
 	}
 
-	_, err := execTerraform(wd, []string{"workspace", "new", ws}, nil)
+	_, err := execTerraform(wd, []string{"workspace", "new", ws}, nil, false)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func Apply(wd string, credentials AwsCredentials, vars map[string]string, isDryr
 	}
 	args = append(args, makeVarsArgs(vars)...)
 
-	_, err := execTerraform(wd, args, credentials.ToEnvs())
+	_, err := execTerraform(wd, args, credentials.ToEnvs(), true)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func Destroy(wd string, credentials AwsCredentials, vars map[string]string, isDr
 	}
 	args = append(args, makeVarsArgs(vars)...)
 
-	_, err := execTerraform(wd, args, credentials.ToEnvs())
+	_, err := execTerraform(wd, args, credentials.ToEnvs(), true)
 	if err != nil {
 		return err
 	}
