@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/artronics/vajeh-cli/internal"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 var deployCmd = &cobra.Command{
@@ -14,31 +16,49 @@ and finally runs terraform apply.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		workdir := viper.GetString("workdir")
 		wss, err := internal.GetWorkspaces(workdir)
-		if err != nil {
-			cobra.CheckErr(err)
-		}
+		cobra.CheckErr(err)
 
 		activeWs := wss[0]
 		desiredWs := viper.GetString("workspace")
 
 		if activeWs != desiredWs {
 			err = internal.ChangeWorkspace(workdir, wss, desiredWs)
-			if err != nil {
-				cobra.CheckErr(err)
-			}
+			cobra.CheckErr(err)
 		}
 
 		awsCred, err := internal.GetAwsCred()
-		if err != nil {
-			cobra.CheckErr(err)
-		}
+		cobra.CheckErr(err)
 
-		//fmt.Printf("Acc: %s | Sec: %s\n", awsCred.AccessKey, awsCred.AccessSecret)
-		err = internal.Apply(workdir, awsCred)
-		if err != nil {
-			cobra.CheckErr(err)
+		isDryrun := viper.GetBool("dryrun")
+		isDestroy := viper.GetBool("destroy")
+		vars, err := parseVars(viper.GetString("vars"))
+		cobra.CheckErr(err)
+
+		if isDestroy {
+			err = internal.Destroy(workdir, awsCred, vars, isDryrun)
+		} else {
+			err = internal.Apply(workdir, awsCred, vars, isDryrun)
 		}
+		cobra.CheckErr(err)
 	},
+}
+
+func parseVars(vars string) (map[string]string, error) {
+	m := make(map[string]string)
+	if vars == "" {
+		return m, nil
+	}
+
+	ss := strings.Fields(vars)
+	for _, s := range ss {
+		kv := strings.Split(s, ":")
+		if len(kv) != 2 {
+			return nil, fmt.Errorf("syntax error while parsing vars. It must be in the for of: \"<key1>:<value1> <key2>:<value2>\"")
+		}
+		m[kv[0]] = kv[1]
+	}
+
+	return m, nil
 }
 
 func init() {
@@ -53,4 +73,19 @@ func init() {
 	err = viper.BindPFlag("workdir", deployCmd.PersistentFlags().Lookup("workdir"))
 	cobra.CheckErr(err)
 	viper.SetDefault("workdir", ".")
+
+	deployCmd.PersistentFlags().Bool("dryrun", false, "whether to apply the plan. It's equivalent of terraform plan")
+	err = viper.BindPFlag("dryrun", deployCmd.PersistentFlags().Lookup("dryrun"))
+	cobra.CheckErr(err)
+	viper.SetDefault("dryrun", false)
+
+	deployCmd.PersistentFlags().Bool("destroy", false, "whether to destroy deployment. It WONT ask for confirmation; add --dryrun along this option to check the plan")
+	err = viper.BindPFlag("destroy", deployCmd.PersistentFlags().Lookup("destroy"))
+	cobra.CheckErr(err)
+	viper.SetDefault("destroy", false)
+
+	deployCmd.PersistentFlags().String("vars", "", "terraform variable in the form of: --vars \"<key1>:<value1> <key2>:<value2>\"")
+	err = viper.BindPFlag("vars", deployCmd.PersistentFlags().Lookup("vars"))
+	cobra.CheckErr(err)
+	viper.SetDefault("vars", false)
 }

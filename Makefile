@@ -14,6 +14,9 @@ dev: build
 deploy: build
 	./build/vajeh --config $(shell pwd)/.env/vajeh2.yaml deploy $(opt)
 
+plan: build
+	./build/vajeh --config $(shell pwd)/.env/vajeh2.yaml deploy --dryrun $(opt)
+
 config-init: build
 	./build/vajeh config init $(opt)
 

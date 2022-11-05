@@ -39,7 +39,6 @@ func Exec(bin string, args []string, envs []string) (string, error) {
 
 	if err := cmd.Wait(); err != nil {
 		if ext, ok := err.(*exec.ExitError); ok {
-			// TODO: this should work for both all plat. Test it for win
 			if _, ok := ext.Sys().(syscall.WaitStatus); ok {
 				return "", fmt.Errorf(stderr.String())
 			}
@@ -47,26 +46,6 @@ func Exec(bin string, args []string, envs []string) (string, error) {
 			return "", err
 		}
 	}
-
-	//stderr := new(strings.Builder)
-	//stdOut := new(strings.Builder)
-	//cmd.Stderr = stderr
-	//cmd.Stdout = stdOut
-	//
-	//if err := cmd.Start(); err != nil {
-	//	return "", err
-	//}
-	//
-	//if err := cmd.Wait(); err != nil {
-	//	if ext, ok := err.(*exec.ExitError); ok {
-	//		// TODO: this should work for both all plat. Test it for win
-	//		if _, ok := ext.Sys().(syscall.WaitStatus); ok {
-	//			return "", fmt.Errorf(stderr.String())
-	//		}
-	//	} else {
-	//		return "", err
-	//	}
-	//}
 
 	return output.String(), nil
 }

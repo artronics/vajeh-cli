@@ -73,11 +73,52 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 	return nil
 }
 
-func Apply(wd string, credentials AwsCredentials) error {
-	_, err := execTerraform(wd, []string{"apply", "-auto-approve"}, credentials.ToEnvs())
+func Apply(wd string, credentials AwsCredentials, vars map[string]string, isDryrun bool) error {
+	var args []string
+	if isDryrun {
+		args = append(args, "plan")
+	} else {
+		args = append(args, "apply")
+		args = append(args, "-auto-approve")
+	}
+	args = append(args, makeVarsArgs(vars)...)
+
+	_, err := execTerraform(wd, args, credentials.ToEnvs())
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func Destroy(wd string, credentials AwsCredentials, vars map[string]string, isDryrun bool) error {
+	var args []string
+	if isDryrun {
+		args = append(args, "plan")
+		args = append(args, "-destroy")
+	} else {
+		args = append(args, "destroy")
+		args = append(args, "-auto-approve")
+	}
+	args = append(args, makeVarsArgs(vars)...)
+
+	_, err := execTerraform(wd, args, credentials.ToEnvs())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func makeVarsArgs(vars map[string]string) []string {
+	if len(vars) == 0 {
+		return []string{""}
+	}
+
+	var args []string
+	for k, v := range vars {
+		args = append(args, fmt.Sprintf("-var=%s=%s", k, v))
+	}
+
+	return args
 }
