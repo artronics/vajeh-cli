@@ -33,6 +33,7 @@ func Exec(bin string, args []string, envs []string) (string, error) {
 	for scanner.Scan() {
 		m := scanner.Text()
 		output.WriteString(m)
+		output.WriteString("\n")
 		fmt.Println(m)
 	}
 
