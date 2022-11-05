@@ -1,0 +1,6 @@
+.env
+**/terraform*
+**/.terraform*
+build
+.idea
+terraform-test
