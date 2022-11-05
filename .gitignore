@@ -8,3 +8,6 @@ vajeh-cli
 terraform.*
 terraform-test
 *.tf
+
+
+node_modules
