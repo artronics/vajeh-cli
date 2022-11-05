@@ -1,9 +1,8 @@
 {
   "name": "vajeh-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "vajeh-cli",
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/artronics/vajeh-cli.git"
