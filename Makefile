@@ -20,6 +20,15 @@ plan: build
 config-init: build
 	./build/vajeh config init $(opt)
 
+docker-login:
+	docker login -u artronics -p $(DOCKER_HUB_TOKEN)
+
+docker-build:
+	docker build --platform amd64 -t artronics/vajeh-cli:local .
+
+docker-push: docker-login
+	docker push artronics/vajeh-cli:local
+
 clean:
 	rm -rf build vajeh-cli terraform.* .terraform terraform-test/.terraform* terraform-test/terraform.*
 
