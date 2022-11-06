@@ -16,9 +16,9 @@ var cfgFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "vajeh",
-	Short: "A cli tool to deploy code into aws using terraform",
+	Short: "A cli tool to deploy aws infra and manage releases for vajeh projects",
 	Long: `A tool to perform aws deployment using terraform. The deployment takes advantage of 
-terraform workspace to manage deployment environment`,
+terraform workspace to manage deployment environment. This tool also manages version and helps with creating releases`,
 }
 
 func Execute() {
