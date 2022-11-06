@@ -51,4 +51,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: artronics/vajeh-cli:latest
+          tags: artronics/vajeh-cli:latest,artronics/vajeh-cli:${{ steps.version.outputs.version }}
