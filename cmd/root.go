@@ -52,9 +52,11 @@ func initConfig() {
 		confName := ".vajeh"
 		file := fmt.Sprintf("%s/%s.%s", confPath, confName, confType)
 		if _, err = os.Stat(file); errors.Is(err, os.ErrNotExist) {
-			fmt.Printf("Config file %s doesn't exist. Run \"vajeh config init\" to set it up.\n", file)
-			// TODO: We should exit but uncommenting below line will cause error during "vajeh config init"!
-			//os.Exit(1)
+
+			fmt.Printf("Creating empty config file %s. Run \"vajeh config init\" to set it up.\n", file)
+			f, err := os.Create(file)
+			cobra.CheckErr(err)
+			defer f.Close()
 		}
 
 		viper.AddConfigPath(confPath)
