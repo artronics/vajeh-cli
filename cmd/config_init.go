@@ -21,12 +21,23 @@ var initCmd = &cobra.Command{
 		user, err := osUser.Current()
 		cobra.CheckErr(err)
 
-		scanInput("username", "What is your AWS username?", user.Username)
-		scanInput("aws_access_key_id", "What is your AWS_ACCESS_KEY_ID?", os.Getenv("AWS_ACCESS_KEY_ID"))
-		scanInput("aws_secret_access_key", "What is your AWS_SECRET_ACCESS_KEY?", os.Getenv("AWS_SECRET_ACCESS_KEY"))
-		scanInput("workspace", "What is your default terraform workspace? This is your short username", user.Username)
-		scanInput("workdir", "What is the default terraform directory relative to your project path? This is where you store terraform files.", user.Username)
-		scanInput("version_prefix", "What is the version prefix?", "v")
+		defaults, err := cmd.Flags().GetBool("yes")
+		cobra.CheckErr(err)
+		if defaults {
+			viper.Set("username", user.Username)
+			viper.Set("aws_access_key_id", os.Getenv("AWS_ACCESS_KEY_ID"))
+			viper.Set("aws_secret_access_key", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+			viper.Set("workspace", user.Username)
+			viper.Set("workdir", "")
+			viper.Set("version_prefix", "v")
+		} else {
+			scanInput("username", "What is your AWS username?", user.Username)
+			scanInput("aws_access_key_id", "What is your AWS_ACCESS_KEY_ID?", os.Getenv("AWS_ACCESS_KEY_ID"))
+			scanInput("aws_secret_access_key", "What is your AWS_SECRET_ACCESS_KEY?", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+			scanInput("workspace", "What is your default terraform workspace? This is your short username", user.Username)
+			scanInput("workdir", "What is the default terraform directory relative to your project path? This is where you store terraform files.", ".")
+			scanInput("version_prefix", "What is the version prefix?", "v")
+		}
 
 		err = viper.WriteConfigAs(confFile)
 		cobra.CheckErr(err)
@@ -63,4 +74,5 @@ func init() {
 	defaultFile := fmt.Sprintf("%s/%s.%s", confPath, confName, confType)
 
 	initCmd.Flags().StringP("output", "o", defaultFile, "the config file path")
+	initCmd.PersistentFlags().BoolP("yes", "y", false, "set default values for all questions. Use ful for pipeline")
 }
