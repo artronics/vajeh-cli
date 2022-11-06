@@ -40,7 +40,7 @@ jobs:
           tagging_message: ${{ steps.version.outputs.version }}
           file_pattern: 'release.yaml'
 
-      - name: Release ${{ steps.version.outputs.version }}
+      - name: Release if version selected
         uses: softprops/action-gh-release@v1
         if: ${{ steps.version.outputs.version != '' }}
         with:
@@ -61,15 +61,15 @@ jobs:
           username: artronics
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push :master
         uses: docker/build-push-action@v3
         with:
           push: true
           tags: artronics/vajeh-cli:master
 
-      - name: Build and push
+      - name: Build and push :latest
         uses: docker/build-push-action@v3
         if: ${{ needs.release.outputs.version != '' }}
         with:
           push: true
-          tags: artronics/vajeh-cli:latest
+          tags: artronics/vajeh-cli:latest,artronics/vajeh-cli:${{ needs.release.outputs.version }}
