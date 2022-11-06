@@ -57,7 +57,7 @@ func scanInput(key string, question string, defaultVal string) {
 		value := strings.TrimSpace(line)
 		if value == "" && defaultVal != "" {
 			viper.Set(key, defaultVal)
-		} else if defaultVal != "" {
+		} else if value != "" {
 			viper.Set(key, value)
 		}
 	}
