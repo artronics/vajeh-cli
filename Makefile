@@ -15,7 +15,7 @@ deploy: build
 	./build/vajeh --config $(shell pwd)/.env/vajeh2.yaml deploy $(opt)
 
 version: build
-	./build/vajeh version $(opt)
+	./build/vajeh --config $(shell pwd)/.env/vajeh2.yaml version $(opt)
 
 docker-login:
 	docker login -u artronics -p $(DOCKER_HUB_TOKEN)

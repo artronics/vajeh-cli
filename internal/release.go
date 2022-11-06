@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"github.com/Masterminds/semver"
 	"github.com/valyala/fasttemplate"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -11,16 +12,28 @@ import (
 
 const releaseTemplate = ` #  --- DO NOT EDIT --- Auto-generated at: {{ time }}
 version: {{ version }}
-releaseId: {{ releaseId }}
-commitId: {{ commitId }}
+version_prefix: {{ version_prefix }}
 `
 
 type ReleaseData struct {
-	Version string
+	Prefix  string `yaml:"version_prefix"`
+	Version string `yaml:"version"`
+}
+
+func NewReleaseData(version, prefix string) (ReleaseData, error) {
+	ver, err := semver.NewVersion(version)
+	if err != nil {
+		return ReleaseData{}, err
+	}
+
+	return ReleaseData{Version: ver.String(), Prefix: prefix}, nil
 }
 
 func (r ReleaseData) Write(path string) error {
-	content := renderTemplate(r)
+	content, err := renderTemplate(r)
+	if err != nil {
+		return err
+	}
 
 	f, err := os.Create(path)
 	defer f.Close()
@@ -32,18 +45,18 @@ func (r ReleaseData) Write(path string) error {
 	return nil
 }
 
-func renderTemplate(rd ReleaseData) string {
+func renderTemplate(rd ReleaseData) (string, error) {
 	template := fasttemplate.New(releaseTemplate, "{{ ", " }}")
-
 	data := map[string]interface{}{
-		"time":    time.Now().UTC().Format("2006-01-02 15:04:05"),
-		"version": rd.Version}
+		"time":           time.Now().UTC().Format("2006-01-02 15:04:05"),
+		"version":        rd.Version,
+		"version_prefix": rd.Prefix}
 
-	return template.ExecuteString(data)
+	return template.ExecuteString(data), nil
 }
 
-func parseReleaseFile(path string) (map[string]interface{}, error) {
-	var data map[string]interface{}
+func ParseReleaseFile(path string) (ReleaseData, error) {
+	var data ReleaseData
 
 	file, err := os.Open(path)
 	if err != nil {
