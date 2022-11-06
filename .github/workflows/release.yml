@@ -26,7 +26,7 @@ jobs:
           echo  ${{ github.event.head_commit.message == '[release:+major]' }}
 
       - name: Bump version
-        if: ${{ github.event.head_commit.message == "[release:+major]" }}
+        if: ${{ github.event.head_commit.message == '[release:+major]' }}
         id: version
         run: |
           ./build/vajeh-cli config init -y
