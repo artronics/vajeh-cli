@@ -23,7 +23,7 @@ jobs:
       - name: Check
         run: |
           echo message ${{ github.event.head_commit.message }}
-          echo if ${{ github.event.head_commit.message == "[release:+major]" }}
+          echo "if ${{ github.event.head_commit.message == [release:+major] }}"
 
       - name: Bump version
         if: ${{ github.event.head_commit.message == "[release:+major]" }}
