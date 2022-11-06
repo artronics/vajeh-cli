@@ -29,9 +29,14 @@ and finally runs terraform apply.`,
 		awsCred, err := internal.GetAwsCred()
 		cobra.CheckErr(err)
 
-		isDryrun := viper.GetBool("dryrun")
-		isDestroy := viper.GetBool("destroy")
-		vars, err := parseVars(viper.GetString("vars"))
+		isDryrun, err := cmd.Flags().GetBool("dryrun")
+		cobra.CheckErr(err)
+		isDestroy, err := cmd.Flags().GetBool("destroy")
+		cobra.CheckErr(err)
+		varsArg, err := cmd.Flags().GetString("vars")
+		cobra.CheckErr(err)
+
+		vars, err := parseVars(varsArg)
 		cobra.CheckErr(err)
 
 		if isDestroy {
