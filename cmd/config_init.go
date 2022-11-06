@@ -28,7 +28,7 @@ var initCmd = &cobra.Command{
 			viper.Set("aws_access_key_id", os.Getenv("AWS_ACCESS_KEY_ID"))
 			viper.Set("aws_secret_access_key", os.Getenv("AWS_SECRET_ACCESS_KEY"))
 			viper.Set("workspace", user.Username)
-			viper.Set("workdir", "")
+			viper.Set("workdir", ".")
 			viper.Set("version_prefix", "v")
 		} else {
 			scanInput("username", "What is your AWS username?", user.Username)
