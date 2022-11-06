@@ -32,7 +32,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.vajeh.yaml)")
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 	// key and secret must be provided via environment variables only
 	err := viper.BindEnv("aws-secret-access-key", "aws-access-key-id")
