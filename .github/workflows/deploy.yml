@@ -27,10 +27,12 @@ jobs:
           ./build/vajeh-cli config init -y
           echo "version=$(./build/vajeh-cli version --minor)" >> $GITHUB_OUTPUT
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Push version changes
+        uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: ${{ steps.version.outputs.version }}
           tagging_message: ${{ steps.version.outputs.version }}
+          file_pattern: 'release.yaml'
 
       - name: Release ${{ steps.version.outputs.version }}
         uses: softprops/action-gh-release@v1
