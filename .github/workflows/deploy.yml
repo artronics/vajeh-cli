@@ -25,10 +25,12 @@ jobs:
         id: version
         run: |
           ./build/vajeh-cli config init -y
-          #echo "::set-output name=version::$(./build/vajeh-cli version --minor)"
           echo "version=$(./build/vajeh-cli version --minor)" >> $GITHUB_OUTPUT
 
-      - run: echo ${{ steps.version.outputs.version }}
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: ${{ steps.version.outputs.version }}
+          tagging_message: ${{ steps.version.outputs.version }}
 
       - name: Release ${{ steps.version.outputs.version }}
         uses: softprops/action-gh-release@v1
