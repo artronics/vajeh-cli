@@ -25,12 +25,12 @@ jobs:
         id: version
         run: |
           ./build/vajeh-cli config init -y
-          echo "::set-output name=version::$(./build/vajeh-cli version --minor)"
-          #echo "{version}={$(./build/vajeh-cli version --minor)}" >> $GITHUB_OUTPUT
+          #echo "::set-output name=version::$(./build/vajeh-cli version --minor)"
+          echo "version=$(./build/vajeh-cli version --minor)" >> $GITHUB_OUTPUT
 
       - run: echo ${{ steps.version.outputs.version }}
 
-      - name: Release
+      - name: Release ${{ steps.version.outputs.version }}
         uses: softprops/action-gh-release@v1
         with:
           files: build/vajeh-cli
