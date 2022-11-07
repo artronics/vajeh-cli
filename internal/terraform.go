@@ -39,6 +39,9 @@ func GetWorkspaces(wd string, credentials AwsCredentials) ([]string, error) {
 	wss = append(wss, activeWs) // Add current one
 
 	wsStr, err := execTerraform(wd, []string{"workspace", "list"}, credentials.ToEnvs(), false)
+	if err != nil {
+		return nil, err
+	}
 	wsAll := strings.Split(wsStr, "\n")
 
 	for _, ws := range wsAll {
