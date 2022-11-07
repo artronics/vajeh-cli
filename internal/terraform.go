@@ -15,12 +15,10 @@ func execTerraform(wd string, args []string, envs []string, isStdout bool) (stri
 	out, err := Exec(bin, n, envs, isStdout)
 
 	if err != nil {
-		if strings.Contains(err.Error(), "please run \"terraform init\"") {
-			_, err := Exec(bin, []string{chdir, "init"}, envs, true)
-			if err != nil {
+		if canHandleError(err.Error()) {
+			if _, err := Exec(bin, []string{chdir, "init"}, envs, true); err != nil {
 				return out, err
 			}
-
 		} else {
 			return out, err
 		}
@@ -121,4 +119,11 @@ func makeVarsArgs(vars map[string]string) []string {
 	}
 
 	return args
+}
+
+// canHandleError
+// These are scenarios in which "terraform init" can resolve them
+func canHandleError(msg string) bool {
+	return strings.Contains(msg, "please run \"terraform init\"") ||
+		strings.Contains(msg, "Required plugins are not installed")
 }
