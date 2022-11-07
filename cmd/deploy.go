@@ -15,14 +15,14 @@ var deployCmd = &cobra.Command{
 and finally runs terraform apply.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		workdir := viper.GetString("workdir")
-		wss, err := internal.GetWorkspaces(workdir)
+		awsCred, err := internal.GetAwsCred()
+		cobra.CheckErr(err)
+
+		wss, err := internal.GetWorkspaces(workdir, awsCred)
 		cobra.CheckErr(err)
 
 		activeWs := wss[0]
 		desiredWs := viper.GetString("workspace")
-
-		awsCred, err := internal.GetAwsCred()
-		cobra.CheckErr(err)
 
 		if activeWs != desiredWs {
 			err = internal.ChangeWorkspace(workdir, awsCred, wss, desiredWs)
@@ -40,6 +40,7 @@ and finally runs terraform apply.`,
 		cobra.CheckErr(err)
 
 		if isDestroy {
+			// TODO: delete workspace at the end as well
 			err = internal.Destroy(workdir, awsCred, vars, isDryrun)
 		} else {
 			err = internal.Apply(workdir, awsCred, vars, isDryrun)

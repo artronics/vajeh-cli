@@ -29,8 +29,8 @@ func execTerraform(wd string, args []string, envs []string, isStdout bool) (stri
 
 // GetWorkspaces returns a list of all workspaces with the first item indicating the active one.
 // Given correct initialized directory this list must have at least one item i.e "default"
-func GetWorkspaces(wd string) ([]string, error) {
-	activeWs, err := execTerraform(wd, []string{"workspace", "show"}, nil, false)
+func GetWorkspaces(wd string, credentials AwsCredentials) ([]string, error) {
+	activeWs, err := execTerraform(wd, []string{"workspace", "show"}, credentials.ToEnvs(), false)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func GetWorkspaces(wd string) ([]string, error) {
 	var wss []string
 	wss = append(wss, activeWs) // Add current one
 
-	wsStr, err := execTerraform(wd, []string{"workspace", "list"}, nil, false)
+	wsStr, err := execTerraform(wd, []string{"workspace", "list"}, credentials.ToEnvs(), false)
 	wsAll := strings.Split(wsStr, "\n")
 
 	for _, ws := range wsAll {
