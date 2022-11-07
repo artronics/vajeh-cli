@@ -9,10 +9,10 @@ func execTerraform(wd string, args []string, envs []string, isStdout bool) (stri
 	bin := "terraform"
 	chdir := fmt.Sprintf("-chdir=%s", wd)
 
-	n := []string{chdir}
-	n = append(n, args...)
+	cmdArgs := []string{chdir}
+	cmdArgs = append(cmdArgs, args...)
 
-	out, err := Exec(bin, n, envs, isStdout)
+	out, err := Exec(bin, cmdArgs, envs, isStdout)
 
 	if err != nil {
 		if canHandleError(err.Error()) {
@@ -51,11 +51,11 @@ func GetWorkspaces(wd string) ([]string, error) {
 	return wss, nil
 }
 
-func ChangeWorkspace(wd string, wss []string, ws string) error {
+func ChangeWorkspace(wd string, credentials AwsCredentials, wss []string, ws string) error {
 	// If it's already in wss then just switch (select) it otherwise create new one. "new" will switch as well
 	for _, w := range wss {
 		if ws == w {
-			_, err := execTerraform(wd, []string{"workspace", "select", ws}, nil, false)
+			_, err := execTerraform(wd, []string{"workspace", "select", ws}, credentials.ToEnvs(), false)
 			if err != nil {
 				return err
 			}
@@ -63,7 +63,7 @@ func ChangeWorkspace(wd string, wss []string, ws string) error {
 		}
 	}
 
-	_, err := execTerraform(wd, []string{"workspace", "new", ws}, nil, false)
+	_, err := execTerraform(wd, []string{"workspace", "new", ws}, credentials.ToEnvs(), false)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,9 @@ func Apply(wd string, credentials AwsCredentials, vars map[string]string, isDryr
 		args = append(args, "apply")
 		args = append(args, "-auto-approve")
 	}
-	args = append(args, makeVarsArgs(vars)...)
+	if varsArg := makeVarsArgs(vars); varsArg != nil {
+		args = append(args, varsArg...)
+	}
 
 	_, err := execTerraform(wd, args, credentials.ToEnvs(), true)
 	if err != nil {
@@ -98,7 +100,9 @@ func Destroy(wd string, credentials AwsCredentials, vars map[string]string, isDr
 		args = append(args, "destroy")
 		args = append(args, "-auto-approve")
 	}
-	args = append(args, makeVarsArgs(vars)...)
+	if varsArg := makeVarsArgs(vars); varsArg != nil {
+		args = append(args, varsArg...)
+	}
 
 	_, err := execTerraform(wd, args, credentials.ToEnvs(), true)
 	if err != nil {
@@ -110,7 +114,7 @@ func Destroy(wd string, credentials AwsCredentials, vars map[string]string, isDr
 
 func makeVarsArgs(vars map[string]string) []string {
 	if len(vars) == 0 {
-		return []string{""}
+		return nil
 	}
 
 	var args []string

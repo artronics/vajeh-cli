@@ -21,13 +21,13 @@ and finally runs terraform apply.`,
 		activeWs := wss[0]
 		desiredWs := viper.GetString("workspace")
 
-		if activeWs != desiredWs {
-			err = internal.ChangeWorkspace(workdir, wss, desiredWs)
-			cobra.CheckErr(err)
-		}
-
 		awsCred, err := internal.GetAwsCred()
 		cobra.CheckErr(err)
+
+		if activeWs != desiredWs {
+			err = internal.ChangeWorkspace(workdir, awsCred, wss, desiredWs)
+			cobra.CheckErr(err)
+		}
 
 		isDryrun, err := cmd.Flags().GetBool("dryrun")
 		cobra.CheckErr(err)
