@@ -19,6 +19,10 @@ func execTerraform(wd string, args []string, envs []string, isStdout bool) (stri
 			if _, err := Exec(bin, []string{chdir, "init"}, envs, true); err != nil {
 				return out, err
 			}
+			// Repeat failed command again.
+			out, err := Exec(bin, cmdArgs, envs, isStdout)
+			return out, err
+
 		} else {
 			return out, err
 		}
@@ -56,6 +60,7 @@ func GetWorkspaces(wd string, credentials AwsCredentials) ([]string, error) {
 
 func ChangeWorkspace(wd string, credentials AwsCredentials, wss []string, ws string) error {
 	// If it's already in wss then just switch (select) it otherwise create new one. "new" will switch as well
+	fmt.Println(wss)
 	for _, w := range wss {
 		if ws == w {
 			_, err := execTerraform(wd, []string{"workspace", "select", ws}, credentials.ToEnvs(), false)
