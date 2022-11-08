@@ -40,12 +40,14 @@ and finally runs terraform apply.`,
 		cobra.CheckErr(err)
 
 		if isDestroy {
-			// TODO: delete workspace at the end as well
 			err = internal.Destroy(workdir, awsCred, vars, isDryrun)
+			cobra.CheckErr(err)
+			err = internal.DeleteWorkspace(workdir, awsCred, desiredWs)
+			cobra.CheckErr(err)
 		} else {
 			err = internal.Apply(workdir, awsCred, vars, isDryrun)
+			cobra.CheckErr(err)
 		}
-		cobra.CheckErr(err)
 	},
 }
 

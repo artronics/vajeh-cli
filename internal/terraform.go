@@ -60,7 +60,6 @@ func GetWorkspaces(wd string, credentials AwsCredentials) ([]string, error) {
 
 func ChangeWorkspace(wd string, credentials AwsCredentials, wss []string, ws string) error {
 	// If it's already in wss then just switch (select) it otherwise create new one. "new" will switch as well
-	fmt.Println(wss)
 	for _, w := range wss {
 		if ws == w {
 			_, err := execTerraform(wd, []string{"workspace", "select", ws}, credentials.ToEnvs(), false)
@@ -77,6 +76,15 @@ func ChangeWorkspace(wd string, credentials AwsCredentials, wss []string, ws str
 	}
 
 	return nil
+}
+
+func DeleteWorkspace(wd string, credentials AwsCredentials, ws string) error {
+	if ws == "default" {
+		return nil // default workspace can't be deleted. For single workspace deployment this is not really an error
+	}
+	_, err := execTerraform(wd, []string{"workspace", "select", "default"}, credentials.ToEnvs(), false)
+	_, err = execTerraform(wd, []string{"workspace", "delete", ws}, credentials.ToEnvs(), true)
+	return err
 }
 
 func Apply(wd string, credentials AwsCredentials, vars map[string]string, isDryrun bool) error {
